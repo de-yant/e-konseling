@@ -64,7 +64,6 @@ const pagedRows = computed(() => {
         <div class="hero-text">
           <span class="eyebrow">Dashboard {{ roleLabel }}</span>
           <h1 class="hero-title">Selamat datang, <span class="accent">{{ displayName }}</span></h1>
-          <p class="hero-sub">Ringkasan pelanggaran — pantau kedisiplinan murid: total pelanggaran, poin, dan catatan terbaru.</p>
         </div>
       </div>
     </section>

@@ -1,11 +1,13 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { login, ACCOUNTS } from '@/services/authService'
+import { login, DEMO_ACCOUNTS } from '@/services/authService'
+import { useToast } from '@/composables/useToast'
 import { APP_NAME } from '@/config'
 import AppIcon from '@/components/AppIcon.vue'
 
 const router = useRouter()
+const toast = useToast()
 
 const username = ref('')
 const password = ref('')
@@ -13,7 +15,7 @@ const remember = ref(true)
 const loading = ref(false)
 const error = ref('')
 
-const demoAccounts = Object.entries(ACCOUNTS).map(([user, a]) => ({
+const demoAccounts = Object.entries(DEMO_ACCOUNTS).map(([user, a]) => ({
   user,
   password: a.password,
   label: a.label,
@@ -24,21 +26,26 @@ function useDemo(user) {
   password.value = '123'
 }
 
-function handleSubmit() {
+async function handleSubmit() {
   error.value = ''
   loading.value = true
 
-  setTimeout(() => {
-    const session = login(username.value, password.value)
-    loading.value = false
+  try {
+    const session = await login(username.value, password.value)
 
-    if (session) {
-      router.push(session.home)
+    if (session.demo) {
+      toast.info('Login sebagai akun demo', { title: 'Mode Demo' })
     } else {
-      error.value = 'Username atau password salah.'
-      password.value = ''
+      toast.success(`Selamat datang, ${session.name || session.username}`, { title: 'Berhasil login' })
     }
-  }, 400)
+
+    router.push(session.home)
+  } catch (err) {
+    error.value = err?.response?.data?.message || err?.message || 'Username/email atau password salah.'
+    password.value = ''
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
@@ -85,12 +92,12 @@ function handleSubmit() {
 
         <form class="auth-form" @submit.prevent="handleSubmit">
           <div class="field">
-            <label class="field-label" for="username">Username</label>
+            <label class="field-label" for="username">Username / Email</label>
             <div class="input-icon">
               <span class="ico">
                 <AppIcon name="user" />
               </span>
-              <input id="username" v-model="username" class="input" type="text" placeholder="guru" autocomplete="username" required>
+              <input id="username" v-model="username" class="input" type="text" placeholder="username atau email" autocomplete="username" required>
             </div>
           </div>
 

@@ -51,13 +51,13 @@ const year = new Date().getFullYear()
   color: var(--primary, #2563eb);
 }
 
-/* mobile: nama sekolah tengah atas; bawahnya meta (kiri) sejajar copyright (kanan) */
+/* mobile: nama sekolah tengah atas; bawahnya copyright (kiri) sejajar meta (kanan) */
 @media (max-width: 720px) {
   .d-footer {
     grid-template-columns: 1fr 1fr;
     grid-template-areas:
       "school school"
-      "meta copy";
+      "copy meta";
     gap: 6px 10px;
     padding: 16px 14px;
   }
@@ -70,12 +70,12 @@ const year = new Date().getFullYear()
 
   .d-footer-meta {
     grid-area: meta;
-    justify-self: start;
+    justify-self: end;
   }
 
   .footer-copy {
     grid-area: copy;
-    justify-self: end;
+    justify-self: start;
   }
 }
 </style>

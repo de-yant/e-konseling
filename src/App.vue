@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted } from 'vue'
 import { RouterView } from 'vue-router'
+import AppToast from '@/components/AppToast.vue'
 
 // Pengaman: pastikan atribut tema selalu ada walau script di index.html tidak jalan
 function ensureTheme() {
@@ -18,4 +19,5 @@ onMounted(ensureTheme)
 
 <template>
   <RouterView />
+  <AppToast />
 </template>

@@ -30,11 +30,35 @@ const routes = [
     ],
   },
   {
+    path: '/staff',
+    component: AppLayout,
+    meta: { requiresAuth: true },
+    children: [
+      { path: '', name: 'staff.home', meta: { title: 'Dashboard Tenaga Kependidikan' }, component: () => import('@/views/staff/HomeView.vue') },
+    ],
+  },
+  {
     path: '/counselor',
     component: AppLayout,
     meta: { requiresAuth: true },
     children: [
       { path: '', name: 'counselor.home', meta: { title: 'Dashboard Counselor' }, component: () => import('@/views/counselor/HomeView.vue') },
+      { path: 'pelanggaran', name: 'counselor.pelanggaran', meta: { title: 'Pelanggaran' }, component: () => import('@/views/counselor/PelanggaranView.vue') },
+      { path: 'kategori', name: 'counselor.kategori', meta: { title: 'Kategori' }, component: () => import('@/views/counselor/KategoriView.vue') },
+      { path: 'murid', name: 'counselor.murid', meta: { title: 'Murid' }, component: () => import('@/views/counselor/MuridView.vue') },
+      { path: 'guru', name: 'counselor.guru', meta: { title: 'Guru' }, component: () => import('@/views/counselor/GuruView.vue') },
+      { path: 'kelas', name: 'counselor.kelas', meta: { title: 'Kelas' }, component: () => import('@/views/counselor/KelasView.vue') },
+      { path: 'laporan', name: 'counselor.laporan', meta: { title: 'Laporan' }, component: () => import('@/views/counselor/LaporanView.vue') },
+    ],
+  },
+  {
+    path: '/akun',
+    component: AppLayout,
+    meta: { requiresAuth: true },
+    children: [
+      { path: 'profil', name: 'account.profil', meta: { title: 'Profil' }, component: () => import('@/views/account/ProfilView.vue') },
+      { path: 'pengaturan', name: 'account.pengaturan', meta: { title: 'Pengaturan' }, component: () => import('@/views/account/PengaturanView.vue') },
+      { path: 'panduan', name: 'account.panduan', meta: { title: 'Panduan' }, component: () => import('@/views/account/PanduanView.vue') },
     ],
   },
   {

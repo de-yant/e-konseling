@@ -10,7 +10,7 @@ const menus = getMenus(session?.role, session?.home)
 <template>
   <nav class="mobile-nav" aria-label="Menu utama">
     <template v-for="m in menus" :key="m.label">
-      <RouterLink v-if="m.to" class="mobile-nav-item" :to="m.to" active-class="active">
+      <RouterLink v-if="m.to" class="mobile-nav-item" :to="m.to" exact-active-class="active">
         <AppIcon :name="m.icon" />
         <span>{{ m.label }}</span>
       </RouterLink>

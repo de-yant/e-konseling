@@ -31,7 +31,7 @@ function handleLogout() {
       <div class="nav-label">Menu</div>
 
       <template v-for="m in menus" :key="m.label">
-        <RouterLink v-if="m.to" class="nav-link" :to="m.to" active-class="active">
+        <RouterLink v-if="m.to" class="nav-link" :to="m.to" exact-active-class="active">
           <AppIcon :name="m.icon" />
           <span>{{ m.label }}</span>
         </RouterLink>

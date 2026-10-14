@@ -1,10 +1,26 @@
 export function getMenus(role, home) {
+  const base = home || '/'
+
   const staff = [
-    { label: 'Dashboard', to: home || '/', icon: 'grid' },
-    { label: 'Pelanggaran', href: '#', icon: 'alert' },
-    { label: 'Kategori', href: '#', icon: 'tag' },
-    { label: 'Murid', href: '#', icon: 'users' },
-    { label: 'Laporan', href: '#', icon: 'chart' },
+    { label: 'Dashboard', to: base, icon: 'grid' },
+    role === 'counselor'
+      ? { label: 'Murid', to: `${base}/murid`, icon: 'users' }
+      : { label: 'Murid', href: '#', icon: 'users' },
+    role === 'counselor'
+      ? { label: 'Guru', to: `${base}/guru`, icon: 'graduation' }
+      : { label: 'Guru', href: '#', icon: 'graduation' },
+    role === 'counselor'
+      ? { label: 'Kelas', to: `${base}/kelas`, icon: 'book' }
+      : { label: 'Kelas', href: '#', icon: 'book' },
+    role === 'counselor'
+      ? { label: 'Pelanggaran', to: `${base}/pelanggaran`, icon: 'alert' }
+      : { label: 'Pelanggaran', href: '#', icon: 'alert' },
+    role === 'counselor'
+      ? { label: 'Kategori', to: `${base}/kategori`, icon: 'tag' }
+      : { label: 'Kategori', href: '#', icon: 'tag' },
+    role === 'counselor'
+      ? { label: 'Laporan', to: `${base}/laporan`, icon: 'chart' }
+      : { label: 'Laporan', href: '#', icon: 'chart' },
   ]
 
   const student = [

@@ -1,5 +1,5 @@
 {
-  "name": "pelanggaran-murid",
+  "name": "e-konseling",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@lucide/vue": "^1.56.0",
+    "axios": "^1.20.0",
     "vue": "^3.5.32",
     "vue-router": "^5.4.0"
   },

@@ -1,7 +1,8 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { logout, getSession } from '@/services/authService'
+import { useSearch } from '@/composables/useSearch'
 import { APP_NAME } from '@/config'
 import AppIcon from '@/components/AppIcon.vue'
 
@@ -13,6 +14,7 @@ defineProps({
 defineEmits(['toggle-sidebar'])
 
 const router = useRouter()
+const route = useRoute()
 
 const session = getSession()
 const initials = (session?.username || 'u').slice(0, 2).toUpperCase()
@@ -36,19 +38,44 @@ function toggleTheme() {
   } catch {}
 }
 
-// ===== pencarian (modal tengah) =====
+// ===== pencarian (modal tengah, mengikuti halaman aktif) =====
+// Konteks pencarian mengikuti halaman aktif: di data murid mencari murid,
+// di halaman guru mencari guru, dst. Halaman mendaftarkan provider-nya.
+const { scope, results, run, clear } = useSearch()
 const searchOpen = ref(false)
-const searchQuery = ref('')
 const searchInput = ref(null)
+
+const searchPlaceholder = computed(() =>
+  scope.value ? `Cari ${scope.value.toLowerCase()}...` : 'Cari...'
+)
+
+const searchHint = computed(() =>
+  scope.value
+    ? `Ketik nama atau kata kunci untuk mencari ${scope.value.toLowerCase()}.`
+    : 'Pencarian tidak tersedia di halaman ini.'
+)
 
 function openSearch() {
   searchOpen.value = true
-  searchQuery.value = ''
+  run('')
   requestAnimationFrame(() => searchInput.value?.focus())
 }
 function closeSearch() {
   searchOpen.value = false
 }
+function onSearchInput(e) {
+  run(e.target.value)
+}
+function pick(item) {
+  run(item.title)
+  closeSearch()
+}
+
+// Tutup & bersihkan pencarian setiap kali berpindah halaman.
+watch(() => route.fullPath, () => {
+  searchOpen.value = false
+  clear()
+})
 
 const notifications = ref([
   { av: 'AF', text: 'Ahmad Fauzi', note: 'mendapat pelanggaran baru', time: '5 MENIT LALU' },
@@ -115,6 +142,7 @@ onUnmounted(() => {
         <strong>{{ APP_NAME }}</strong>
         <span class="current">{{ title }}</span>
       </div>
+      <span v-if="session?.demo" class="demo-badge" title="Login sebagai akun demo">DEMO</span>
     </div>
 
     <div class="topbar-actions">
@@ -200,21 +228,24 @@ onUnmounted(() => {
         <div class="avatar" role="button" tabindex="0" :aria-label="session?.label || 'Akun'" @click="toggleMenu('profile')">{{ initials }}</div>
         <div class="dd-menu dd-profile" role="menu">
           <div class="dd-profile-head">
-            <div class="dd-profile-name">{{ session?.username || 'Pengguna' }}</div>
+            <div class="dd-profile-name">
+              {{ session?.username || 'Pengguna' }}
+              <span v-if="session?.demo" class="demo-badge">DEMO</span>
+            </div>
             <div class="dd-profile-email">{{ session?.label || 'demo' }}</div>
           </div>
-          <a class="dd-menu-item" href="#">
+          <RouterLink class="dd-menu-item" to="/akun/profil" @click="openMenu = null">
             <AppIcon name="user" />
             Profil
-          </a>
-          <a class="dd-menu-item" href="#">
+          </RouterLink>
+          <RouterLink class="dd-menu-item" to="/akun/pengaturan" @click="openMenu = null">
             <AppIcon name="settings" />
             Pengaturan
-          </a>
-          <a class="dd-menu-item" href="#">
+          </RouterLink>
+          <RouterLink class="dd-menu-item" to="/akun/panduan" @click="openMenu = null">
             <AppIcon name="book" />
             Panduan
-          </a>
+          </RouterLink>
           <div class="dd-divider"></div>
           <button class="dd-menu-item danger" type="button" @click="handleLogout">
             <AppIcon name="logout" />
@@ -232,17 +263,33 @@ onUnmounted(() => {
           <span class="search-ic"><AppIcon name="search" :size="18" /></span>
           <input
             ref="searchInput"
-            v-model="searchQuery"
             class="search-input"
             type="text"
-            placeholder="Cari murid atau pelanggaran..."
+            :placeholder="searchPlaceholder"
+            :value="keyword"
             autocomplete="off"
+            @input="onSearchInput"
           >
           <kbd class="search-esc">esc</kbd>
         </div>
         <div class="search-body">
-          <p v-if="!searchQuery" class="search-hint">Ketik nama murid atau jenis pelanggaran untuk mencari.</p>
-          <p v-else class="search-hint">Tidak ada hasil untuk "{{ searchQuery }}".</p>
+          <p v-if="!keyword" class="search-hint">{{ searchHint }}</p>
+          <template v-else>
+            <a
+              v-for="r in results"
+              :key="r.key"
+              class="search-item"
+              href="#"
+              @click.prevent="pick(r)"
+            >
+              <span class="search-item-icon"><AppIcon name="search" :size="15" /></span>
+              <span class="search-item-body">
+                <span class="search-item-title">{{ r.title }}</span>
+                <span v-if="r.subtitle" class="search-item-sub">{{ r.subtitle }}</span>
+              </span>
+            </a>
+            <p v-if="!results.length" class="search-hint">Tidak ada hasil untuk "{{ keyword }}".</p>
+          </template>
         </div>
       </div>
     </div>
@@ -296,6 +343,22 @@ onUnmounted(() => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.demo-badge {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: var(--warning-soft, #fffbeb);
+  color: var(--warning, #f59e0b);
+  border: 1px solid color-mix(in srgb, var(--warning, #f59e0b) 35%, transparent);
+  font-size: 9.5px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  vertical-align: middle;
 }
 
 /* modal pencarian — tengah, tanpa blur */
@@ -367,14 +430,64 @@ onUnmounted(() => {
 }
 
 .search-body {
-  padding: 24px 16px;
+  padding: 10px;
+  overflow-y: auto;
 }
 
 .search-hint {
   margin: 0;
+  padding: 14px 6px;
   text-align: center;
   font-size: 13px;
   color: var(--t-muted, #64748b);
+}
+
+.search-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 9px;
+  color: var(--t-base, #1e293b);
+  text-decoration: none;
+  transition: background-color 0.14s ease;
+}
+
+.search-item:hover {
+  background: var(--bg-hover, #f8fafc);
+}
+
+.search-item-icon {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--primary-soft, #eff6ff);
+  color: var(--primary, #2563eb);
+}
+
+.search-item-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.search-item-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.search-item-sub {
+  font-size: 12px;
+  color: var(--t-muted, #64748b);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* mobile: dropdown notifikasi/pesan jadi panel atas; akun tetap menempel kanan */

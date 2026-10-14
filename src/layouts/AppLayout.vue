@@ -23,7 +23,9 @@ function toggleSidebar() {
     <div class="main">
       <AppHeader :title="title" :sidebar-collapsed="sidebarCollapsed" @toggle-sidebar="toggleSidebar" />
 
-      <RouterView />
+      <div class="main-content">
+        <RouterView />
+      </div>
 
       <AppFooter />
     </div>
@@ -33,6 +35,13 @@ function toggleSidebar() {
 </template>
 
 <style scoped>
+/* Area konten mengisi sisa tinggi agar footer tetap menempel di bawah,
+   tidak naik ke atas saat konten halaman pendek. */
+.main-content {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
 /* Section judul halaman (hero) tampil sebagai section sendiri dengan latar putih.
    Ubah di sini sekali agar berlaku ke semua halaman di dalam layout. */
 :deep(.hero) {
