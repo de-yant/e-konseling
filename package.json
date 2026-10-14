@@ -1,5 +1,5 @@
 {
-  "name": "pelanggaran-siswa",
+  "name": "pelanggaran-murid",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -9,6 +9,7 @@
     "preview": "vite preview --host 0.0.0.0"
   },
   "dependencies": {
+    "@lucide/vue": "^1.56.0",
     "vue": "^3.5.32",
     "vue-router": "^5.4.0"
   },

@@ -3,7 +3,7 @@ export function getMenus(role, home) {
     { label: 'Dashboard', to: home || '/', icon: 'grid' },
     { label: 'Pelanggaran', href: '#', icon: 'alert' },
     { label: 'Kategori', href: '#', icon: 'tag' },
-    { label: 'Siswa', href: '#', icon: 'users' },
+    { label: 'Murid', href: '#', icon: 'users' },
     { label: 'Laporan', href: '#', icon: 'chart' },
   ]
 

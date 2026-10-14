@@ -4,8 +4,8 @@ const SESSION_KEY = 'pelanggaran-session'
 export const ACCOUNTS = {
   guru: { password: '123', role: 'teacher', label: 'Guru', home: '/teacher' },
   walikelas: { password: '123', role: 'homeroom', label: 'Wali Kelas', home: '/homeroom' },
-  bk: { password: '123', role: 'counselor', label: 'BK', home: '/counselor' },
-  siswa: { password: '123', role: 'student', label: 'Siswa', home: '/student' },
+  bk: { password: '123', role: 'counselor', label: 'Counselor', home: '/counselor' },
+  murid: { password: '123', role: 'student', label: 'Murid', home: '/student' },
 }
 
 export function login(username, password) {

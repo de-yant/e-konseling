@@ -3,10 +3,14 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { logout, getSession } from '@/services/authService'
 import { APP_NAME } from '@/config'
+import AppIcon from '@/components/AppIcon.vue'
 
 defineProps({
   title: { type: String, default: 'Dashboard' },
+  sidebarCollapsed: { type: Boolean, default: false },
 })
+
+defineEmits(['toggle-sidebar'])
 
 const router = useRouter()
 
@@ -58,7 +62,7 @@ function markAllNotificationsRead() {
 }
 
 const messages = ref([
-  { av: 'WK', text: 'Wali Kelas X IPS 2', preview: 'Mohon konfirmasi pelanggaran siswa kami.', time: '5 MNT' },
+  { av: 'WK', text: 'Wali Kelas X IPS 2', preview: 'Mohon konfirmasi pelanggaran murid kami.', time: '5 MNT' },
   { av: 'BK', text: 'Tim BK', preview: 'Rekap pekan ini sudah siap.', time: '23 MNT' },
 ])
 const hasUnreadMessages = computed(() => messages.value.length > 0)
@@ -95,10 +99,17 @@ onUnmounted(() => {
 <template>
   <header class="d-topbar">
     <div class="crumbs">
+      <button
+        class="hamburger"
+        type="button"
+        :aria-label="sidebarCollapsed ? 'Buka sidebar' : 'Tutup sidebar'"
+        :aria-expanded="!sidebarCollapsed"
+        @click="$emit('toggle-sidebar')"
+      >
+        <AppIcon name="menu" />
+      </button>
       <div class="header-brand-icon">
-        <svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
-          <path fill="#ffffff" d="M14.747 9.125c.527-1.426 1.736-2.573 3.317-2.573c1.643 0 2.792 1.085 3.318 2.573l6.077 16.867c.186.496.248.931.248 1.147c0 1.209-.992 2.046-2.139 2.046c-1.303 0-1.954-.682-2.264-1.611l-.931-2.915h-8.62l-.93 2.884c-.31.961-.961 1.642-2.232 1.642c-1.24 0-2.294-.93-2.294-2.17c0-.496.155-.868.217-1.023l6.233-16.867zm.34 11.256h5.891l-2.883-8.992h-.062l-2.946 8.992z"/>
-        </svg>
+        <AppIcon name="brand" />
       </div>
       <div class="header-brand-text">
         <strong>{{ APP_NAME }}</strong>
@@ -108,20 +119,20 @@ onUnmounted(() => {
 
     <div class="topbar-actions">
       <button class="cmd" type="button" @click="openSearch">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <AppIcon name="search" />
         <span>Search...</span>
         <kbd class="kbd">⌘K</kbd>
       </button>
 
       <div class="dd-wrap" :class="{ 'is-open': openMenu === 'notif' }">
         <button class="icon-btn" type="button" aria-label="Notifikasi" @click="toggleMenu('notif')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <AppIcon name="bell" />
           <span class="count danger">{{ notifications.length }}</span>
         </button>
         <div class="dd-menu" role="menu">
           <div class="dd-head">
             <div class="dd-head-title">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              <AppIcon name="bell" />
               Notifikasi
             </div>
             <button
@@ -149,13 +160,13 @@ onUnmounted(() => {
 
       <div class="dd-wrap" :class="{ 'is-open': openMenu === 'msg' }">
         <button class="icon-btn" type="button" aria-label="Pesan" @click="toggleMenu('msg')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+          <AppIcon name="mail" />
           <span class="count info">{{ messages.length }}</span>
         </button>
         <div class="dd-menu" role="menu">
           <div class="dd-head">
             <div class="dd-head-title">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+              <AppIcon name="mail" />
               Pesan
             </div>
             <button
@@ -182,13 +193,7 @@ onUnmounted(() => {
       </div>
 
       <button class="icon-btn" type="button" :aria-label="theme === 'dark' ? 'Mode terang' : 'Mode gelap'" @click="toggleTheme">
-        <svg v-if="theme === 'dark'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-          <circle cx="12" cy="12" r="4"/>
-          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>
-        </svg>
-        <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-          <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>
-        </svg>
+        <AppIcon :name="theme === 'dark' ? 'sun' : 'moon'" />
       </button>
 
       <div class="dd-wrap" :class="{ 'is-open': openMenu === 'profile' }">
@@ -199,16 +204,20 @@ onUnmounted(() => {
             <div class="dd-profile-email">{{ session?.label || 'demo' }}</div>
           </div>
           <a class="dd-menu-item" href="#">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <AppIcon name="user" />
             Profil
           </a>
           <a class="dd-menu-item" href="#">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <AppIcon name="settings" />
             Pengaturan
+          </a>
+          <a class="dd-menu-item" href="#">
+            <AppIcon name="book" />
+            Panduan
           </a>
           <div class="dd-divider"></div>
           <button class="dd-menu-item danger" type="button" @click="handleLogout">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+            <AppIcon name="logout" />
             Keluar
           </button>
         </div>
@@ -220,21 +229,19 @@ onUnmounted(() => {
     <div v-if="searchOpen" class="search-overlay" @click.self="closeSearch">
       <div class="search-card" role="dialog" aria-modal="true" aria-label="Pencarian">
         <div class="search-row">
-          <svg class="search-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>
-          </svg>
+          <span class="search-ic"><AppIcon name="search" :size="18" /></span>
           <input
             ref="searchInput"
             v-model="searchQuery"
             class="search-input"
             type="text"
-            placeholder="Cari siswa atau pelanggaran..."
+            placeholder="Cari murid atau pelanggaran..."
             autocomplete="off"
           >
           <kbd class="search-esc">esc</kbd>
         </div>
         <div class="search-body">
-          <p v-if="!searchQuery" class="search-hint">Ketik nama siswa atau jenis pelanggaran untuk mencari.</p>
+          <p v-if="!searchQuery" class="search-hint">Ketik nama murid atau jenis pelanggaran untuk mencari.</p>
           <p v-else class="search-hint">Tidak ada hasil untuk "{{ searchQuery }}".</p>
         </div>
       </div>

@@ -3,5 +3,5 @@ import RoleDashboard from '@/components/RoleDashboard.vue'
 </script>
 
 <template>
-  <RoleDashboard role-label="BK" />
+  <RoleDashboard role-label="Counselor" />
 </template>

@@ -1,21 +1,20 @@
 <script setup>
 import { RouterLink } from 'vue-router'
+import AppIcon from '@/components/AppIcon.vue'
 </script>
 
 <template>
   <div class="content">
     <section class="hero">
       <div class="hero-text">
-        <span class="eyebrow">Pelanggaran Siswa</span>
+        <span class="eyebrow">Pelanggaran Murid</span>
         <h1 class="hero-title">Halaman Beranda</h1>
-        <p class="hero-sub">Sistem pencatatan dan pemantauan pelanggaran siswa.</p>
+        <p class="hero-sub">Sistem pencatatan dan pemantauan pelanggaran murid.</p>
       </div>
       <div class="hero-actions">
         <RouterLink class="btn btn--primary" to="/login">
           Masuk
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M5 12h14M13 5l7 7-7 7"/>
-          </svg>
+          <AppIcon name="arrow-right" />
         </RouterLink>
       </div>
     </section>

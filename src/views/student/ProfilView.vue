@@ -25,7 +25,7 @@ const ringkasan = [
     <section class="hero">
       <div class="hero-text">
         <span class="eyebrow">Profil</span>
-        <h1 class="hero-title">Data Siswa</h1>
+        <h1 class="hero-title">Data Murid</h1>
         <p class="hero-sub">Informasi akun dan identitasmu.</p>
       </div>
     </section>
@@ -36,7 +36,7 @@ const ringkasan = [
           <div class="profile-avatar">{{ initials }}</div>
           <div class="profile-meta">
             <div class="profile-name">Ahmad Fauzi</div>
-            <div class="profile-sub">XI IPA 1 · Siswa</div>
+            <div class="profile-sub">XI IPA 1 · Murid</div>
             <span class="badge success">Aktif</span>
           </div>
         </div>

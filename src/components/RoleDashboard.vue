@@ -1,19 +1,25 @@
 <script setup>
-import { useRouter } from 'vue-router'
-import { logout, getSession } from '@/services/authService'
+import { ref, computed } from 'vue'
+import { getSession } from '@/services/authService'
+import AppIcon from '@/components/AppIcon.vue'
+import AppPagination from '@/components/AppPagination.vue'
 
 defineProps({
   roleLabel: { type: String, default: 'Guru' },
 })
 
-const router = useRouter()
 const session = getSession()
 
+// Nama pengguna yang sedang login (huruf awal dibesarkan)
+const displayName = session?.username
+  ? session.username.charAt(0).toUpperCase() + session.username.slice(1)
+  : 'Pengguna'
+
 const kpis = [
-  { key: 'primary', icon: 'users', label: 'Total Siswa', value: '1.248', pill: 'flat', pillText: 'aktif', compare: 'semester ini' },
+  { key: 'primary', icon: 'users', label: 'Total Murid', value: '1.248', pill: 'flat', pillText: 'aktif', compare: 'semester ini' },
   { key: 'danger', icon: 'alert', label: 'Pelanggaran Bulan Ini', value: '37', pill: 'down', pillText: '-8%', compare: 'turun dari 40 bulan lalu' },
   { key: 'warning', icon: 'star', label: 'Poin Terkumpul', value: '412', pill: 'flat', pillText: 'steady', compare: 'stabil dari pekan lalu' },
-  { key: 'success', icon: 'check', label: 'Siswa Bersih', value: '1.198', pill: 'up', pillText: '+5', compare: 'naik dari 1.193 pekan lalu' },
+  { key: 'success', icon: 'check', label: 'Murid Bersih', value: '1.198', pill: 'up', pillText: '+5', compare: 'naik dari 1.193 pekan lalu' },
 ]
 
 const kategori = [
@@ -39,33 +45,27 @@ const rows = [
 
 const statusClass = { Diproses: 'warning', Disetujui: 'success', Ditolak: 'danger' }
 
-function handleLogout() {
-  logout()
-  router.push('/login')
-}
+// Pagination tabel "Pelanggaran Terakhir"
+const page = ref(1)
+const perPage = ref(10)
+const pagedRows = computed(() => {
+  const start = (page.value - 1) * perPage.value
+  return rows.slice(start, start + perPage.value)
+})
 </script>
 
 <template>
   <div class="content">
     <section class="hero">
-      <div class="hero-text">
-        <span class="eyebrow">Dashboard {{ roleLabel }}</span>
-        <h1 class="hero-title">Ringkasan <span class="accent">Pelanggaran</span></h1>
-        <p class="hero-sub">Pantau kedisiplinan siswa: total pelanggaran, poin, dan catatan terbaru.</p>
-      </div>
-      <div class="hero-actions">
-        <button class="btn btn--ghost" type="button" @click="handleLogout">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/>
-          </svg>
-          Keluar
-        </button>
-        <button class="btn btn--primary" type="button">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 5v14M5 12h14"/>
-          </svg>
-          Catat Pelanggaran
-        </button>
+      <div class="hero-main">
+        <div class="hero-icon">
+          <AppIcon name="shield" :size="24" />
+        </div>
+        <div class="hero-text">
+          <span class="eyebrow">Dashboard {{ roleLabel }}</span>
+          <h1 class="hero-title">Selamat datang, <span class="accent">{{ displayName }}</span></h1>
+          <p class="hero-sub">Ringkasan pelanggaran — pantau kedisiplinan murid: total pelanggaran, poin, dan catatan terbaru.</p>
+        </div>
       </div>
     </section>
 
@@ -74,25 +74,12 @@ function handleLogout() {
         <div class="kpi-top">
           <div class="kpi-identity">
             <div class="kpi-icon" :class="k.key">
-              <svg v-if="k.icon === 'users'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/>
-              </svg>
-              <svg v-else-if="k.icon === 'alert'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/>
-              </svg>
-              <svg v-else-if="k.icon === 'star'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-              </svg>
-              <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M22 11.1V12a10 10 0 1 1-5.9-9.1"/><path d="m22 4-10 10-3-3"/>
-              </svg>
+              <AppIcon :name="k.icon" />
             </div>
             <div class="kpi-label">{{ k.label }}</div>
           </div>
           <span class="kpi-pill" :class="k.pill">
-            <svg v-if="k.pill === 'up'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17l10-10M7 7h10v10"/></svg>
-            <svg v-else-if="k.pill === 'down'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7l10 10M7 17h10V7"/></svg>
-            <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/></svg>
+            <AppIcon :name="k.pill === 'up' ? 'arrow-up-right' : k.pill === 'down' ? 'arrow-down-right' : 'minus'" />
             {{ k.pillText }}
           </span>
         </div>
@@ -165,7 +152,7 @@ function handleLogout() {
               </tr>
             </thead>
             <tbody>
-              <tr v-for="r in rows" :key="r.nama">
+              <tr v-for="r in pagedRows" :key="r.nama">
                 <td class="cell-name">{{ r.nama }}</td>
                 <td>{{ r.kelas }}</td>
                 <td>{{ r.jenis }}</td>
@@ -178,7 +165,44 @@ function handleLogout() {
             </tbody>
           </table>
         </div>
+        <div class="card-foot">
+          <AppPagination v-model="page" v-model:per-page="perPage" :total="rows.length" show-info />
+        </div>
       </section>
     </div>
   </div>
 </template>
+
+<style scoped>
+.card-foot {
+  border-top: 1px solid var(--border-soft, #eef1f5);
+  margin-top: 16px;
+  padding-top: 14px;
+}
+
+.hero-main {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.hero-icon {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--primary-soft, #eff6ff);
+  color: var(--primary, #2563eb);
+}
+
+@media (max-width: 720px) {
+  .hero-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+  }
+}
+</style>
