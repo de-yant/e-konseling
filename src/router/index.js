@@ -52,7 +52,6 @@ const routes = [
       { path: 'kategori', name: 'counselor.kategori', meta: { title: 'Kategori' }, component: () => import('@/views/counselor/KategoriView.vue') },
       { path: 'murid', name: 'counselor.murid', meta: { title: 'Murid' }, component: () => import('@/views/counselor/MuridView.vue') },
       { path: 'guru', name: 'counselor.guru', meta: { title: 'Guru' }, component: () => import('@/views/counselor/GuruView.vue') },
-      { path: 'kelas', name: 'counselor.kelas', meta: { title: 'Kelas' }, component: () => import('@/views/counselor/KelasView.vue') },
       { path: 'laporan', name: 'counselor.laporan', meta: { title: 'Laporan' }, component: () => import('@/views/counselor/LaporanView.vue') },
     ],
   },

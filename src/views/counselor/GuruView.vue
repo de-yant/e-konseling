@@ -2,6 +2,7 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import AppIcon from '@/components/AppIcon.vue'
 import AppPagination from '@/components/AppPagination.vue'
+import AppTable from '@/components/AppTable.vue'
 import { useSearch } from '@/composables/useSearch'
 
 const { keyword, setProvider, clearProvider } = useSearch()
@@ -22,6 +23,14 @@ const rows = [
 ]
 
 const statusClass = { Aktif: 'success', Cuti: 'warning', Nonaktif: 'danger' }
+
+const guruColumns = [
+  { key: 'nama', label: 'Nama', class: 'cell-name' },
+  { key: 'nip', label: 'NIP', class: 'cell-mono' },
+  { key: 'mapel', label: 'Mata Pelajaran' },
+  { key: 'wali', label: 'Wali Kelas', formatter: (v) => v || '—' },
+  { key: 'status', label: 'Status', align: 'right' },
+]
 
 const kpi = computed(() => {
   const count = (s) => rows.filter((r) => r.status === s).length
@@ -126,33 +135,11 @@ onUnmounted(clearProvider)
           </div>
         </div>
 
-        <div class="table-scroll">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Nama</th>
-                <th>NIP</th>
-                <th>Mata Pelajaran</th>
-                <th>Wali Kelas</th>
-                <th style="text-align: right">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="r in paged" :key="r.id">
-                <td class="cell-name">{{ r.nama }}</td>
-                <td class="cell-mono">{{ r.nip }}</td>
-                <td>{{ r.mapel }}</td>
-                <td>{{ r.wali || '—' }}</td>
-                <td style="text-align: right">
-                  <span class="badge" :class="statusClass[r.status]">{{ r.status }}</span>
-                </td>
-              </tr>
-              <tr v-if="!paged.length">
-                <td colspan="5" class="table-empty">Tidak ada guru.</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <AppTable :columns="guruColumns" :rows="paged" empty-text="Tidak ada guru.">
+          <template #cell-status="{ row }">
+            <span class="badge" :class="statusClass[row.status]">{{ row.status }}</span>
+          </template>
+        </AppTable>
 
         <div class="card-foot">
           <AppPagination v-model="page" v-model:per-page="perPage" :total="filtered.length" show-info />
@@ -169,15 +156,9 @@ onUnmounted(clearProvider)
   padding-top: 14px;
 }
 
-.cell-mono {
+:deep(.cell-mono) {
   color: var(--t-muted, #64748b);
   font-family: 'JetBrains Mono', monospace;
   font-size: 12.5px;
-}
-
-.table-empty {
-  color: var(--t-muted, #64748b);
-  padding: 24px 0;
-  text-align: center;
 }
 </style>

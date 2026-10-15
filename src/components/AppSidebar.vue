@@ -2,12 +2,15 @@
 import { useRouter } from 'vue-router'
 import { getSession, logout } from '@/services/authService'
 import { getMenus } from '@/utils/menus'
+import { titleCase } from '@/utils/format'
 import { APP_NAME } from '@/config'
 import AppIcon from '@/components/AppIcon.vue'
 
 const router = useRouter()
 const session = getSession()
 const menus = getMenus(session?.role, session?.home)
+const displayName = titleCase(session?.name || session?.username || '') || 'Pengguna'
+const initials = displayName.split(' ').filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase() || 'U'
 
 function handleLogout() {
   logout()
@@ -31,7 +34,7 @@ function handleLogout() {
       <div class="nav-label">Menu</div>
 
       <template v-for="m in menus" :key="m.label">
-        <RouterLink v-if="m.to" class="nav-link" :to="m.to" exact-active-class="active">
+        <RouterLink v-if="m.to" class="nav-link" :to="m.to" exact-active-class="is-active">
           <AppIcon :name="m.icon" />
           <span>{{ m.label }}</span>
         </RouterLink>
@@ -45,9 +48,9 @@ function handleLogout() {
 
     <div class="sidebar-footer">
       <div class="workspace">
-        <div class="workspace-avatar">{{ (session?.username || 'u').slice(0, 2).toUpperCase() }}</div>
+        <div class="workspace-avatar">{{ initials }}</div>
         <div class="workspace-text">
-          <div class="workspace-name">{{ session?.username || 'Pengguna' }}</div>
+          <div class="workspace-name">{{ displayName }}</div>
           <div class="workspace-role">{{ session?.label || 'demo' }}</div>
         </div>
       </div>

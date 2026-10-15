@@ -10,14 +10,8 @@ export function getMenus(role, home) {
       ? { label: 'Guru', to: `${base}/guru`, icon: 'graduation' }
       : { label: 'Guru', href: '#', icon: 'graduation' },
     role === 'counselor'
-      ? { label: 'Kelas', to: `${base}/kelas`, icon: 'book' }
-      : { label: 'Kelas', href: '#', icon: 'book' },
-    role === 'counselor'
       ? { label: 'Pelanggaran', to: `${base}/pelanggaran`, icon: 'alert' }
       : { label: 'Pelanggaran', href: '#', icon: 'alert' },
-    role === 'counselor'
-      ? { label: 'Kategori', to: `${base}/kategori`, icon: 'tag' }
-      : { label: 'Kategori', href: '#', icon: 'tag' },
     role === 'counselor'
       ? { label: 'Laporan', to: `${base}/laporan`, icon: 'chart' }
       : { label: 'Laporan', href: '#', icon: 'chart' },

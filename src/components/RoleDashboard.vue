@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { getSession } from '@/services/authService'
+import { titleCase } from '@/utils/format'
 import AppIcon from '@/components/AppIcon.vue'
 import AppPagination from '@/components/AppPagination.vue'
 
@@ -10,13 +11,11 @@ defineProps({
 
 const session = getSession()
 
-// Nama pengguna yang sedang login (huruf awal dibesarkan)
-const displayName = session?.username
-  ? session.username.charAt(0).toUpperCase() + session.username.slice(1)
-  : 'Pengguna'
+// Nama guru yang sedang login (bukan username), huruf awal tiap kata dibesarkan.
+const displayName = titleCase(session?.name || session?.username || '') || 'Pengguna'
 
 const kpis = [
-  { key: 'primary', icon: 'users', label: 'Total Murid', value: '1.248', pill: 'flat', pillText: 'aktif', compare: 'semester ini' },
+  { key: 'purple', icon: 'users', label: 'Total Murid', value: '1.248', pill: 'flat', pillText: 'aktif', compare: 'semester ini' },
   { key: 'danger', icon: 'alert', label: 'Pelanggaran Bulan Ini', value: '37', pill: 'down', pillText: '-8%', compare: 'turun dari 40 bulan lalu' },
   { key: 'warning', icon: 'star', label: 'Poin Terkumpul', value: '412', pill: 'flat', pillText: 'steady', compare: 'stabil dari pekan lalu' },
   { key: 'success', icon: 'check', label: 'Murid Bersih', value: '1.198', pill: 'up', pillText: '+5', compare: 'naik dari 1.193 pekan lalu' },
@@ -45,6 +44,19 @@ const rows = [
 
 const statusClass = { Diproses: 'warning', Disetujui: 'success', Ditolak: 'danger' }
 
+// Tombol refresh: tampilkan animasi berputar selama data dimuat ulang.
+const refreshing = ref(false)
+async function handleRefresh() {
+  if (refreshing.value) return
+  refreshing.value = true
+  try {
+    page.value = 1
+    await new Promise((resolve) => setTimeout(resolve, 800))
+  } finally {
+    refreshing.value = false
+  }
+}
+
 // Pagination tabel "Pelanggaran Terakhir"
 const page = ref(1)
 const perPage = ref(10)
@@ -56,7 +68,7 @@ const pagedRows = computed(() => {
 
 <template>
   <div class="content">
-    <section class="hero">
+    <section class="hero hero--accent">
       <div class="hero-main">
         <div class="hero-icon">
           <AppIcon name="shield" :size="24" />
@@ -65,6 +77,20 @@ const pagedRows = computed(() => {
           <span class="eyebrow">Dashboard {{ roleLabel }}</span>
           <h1 class="hero-title">Selamat datang, <span class="accent">{{ displayName }}</span></h1>
         </div>
+      </div>
+
+      <div class="hero-actions">
+        <button
+          class="icon-btn hero-refresh"
+          :class="{ spinning: refreshing }"
+          type="button"
+          aria-label="Muat ulang"
+          :title="refreshing ? 'Memuat ulang...' : 'Muat ulang'"
+          :disabled="refreshing"
+          @click="handleRefresh"
+        >
+          <AppIcon name="refresh" />
+        </button>
       </div>
     </section>
 
@@ -179,11 +205,30 @@ const pagedRows = computed(() => {
   padding-top: 14px;
 }
 
+.hero.hero--accent {
+  border-left: 4px solid var(--primary, #2563eb);
+}
+
+.kpi-card {
+  border-left: 4px solid currentColor;
+}
+
 .hero-main {
   display: flex;
   align-items: center;
   gap: 16px;
   min-width: 0;
+  flex: 1 1 auto;
+}
+
+.hero {
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+
+.hero-actions {
+  flex-wrap: nowrap;
 }
 
 .hero-icon {
@@ -202,6 +247,45 @@ const pagedRows = computed(() => {
     width: 42px;
     height: 42px;
     border-radius: 12px;
+  }
+
+  .hero-title {
+    font-size: 20px;
+    line-height: 1.25;
+    margin-bottom: 4px;
+  }
+}
+
+@media (max-width: 420px) {
+  .hero-title {
+    font-size: 17px;
+  }
+}
+
+.hero-refresh {
+  background: var(--bg-card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+}
+
+.hero-refresh:hover:not(:disabled) {
+  background: var(--bg-hover, #f3f4f6);
+  color: var(--t-base, #111827);
+}
+
+.hero-refresh:disabled {
+  cursor: default;
+}
+
+.hero-refresh.spinning :deep(svg) {
+  animation: hero-spin 0.8s linear infinite;
+}
+
+@keyframes hero-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 </style>

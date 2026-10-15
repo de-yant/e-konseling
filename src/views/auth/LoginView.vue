@@ -1,7 +1,8 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { login, DEMO_ACCOUNTS } from '@/services/authService'
+import api from '@/services/api'
 import { useToast } from '@/composables/useToast'
 import { APP_NAME } from '@/config'
 import AppIcon from '@/components/AppIcon.vue'
@@ -15,6 +16,32 @@ const remember = ref(true)
 const loading = ref(false)
 const error = ref('')
 const showPassword = ref(false)
+
+// Status server (titik hijau bila online, merah bila offline).
+const serverOnline = ref(false)
+let serverTimer = null
+
+async function checkServer() {
+  try {
+    await api.get('/api/health', { timeout: 5000 })
+    serverOnline.value = true
+  } catch {
+    serverOnline.value = false
+  }
+}
+
+onMounted(() => {
+  checkServer()
+  serverTimer = setInterval(checkServer, 15000)
+  window.addEventListener('online', checkServer)
+  window.addEventListener('offline', checkServer)
+})
+
+onUnmounted(() => {
+  clearInterval(serverTimer)
+  window.removeEventListener('online', checkServer)
+  window.removeEventListener('offline', checkServer)
+})
 
 const demoAccounts = Object.entries(DEMO_ACCOUNTS).map(([user, a]) => ({
   user,
@@ -150,6 +177,11 @@ async function handleSubmit() {
         <div class="auth-main-bottom">
           Dengan masuk, kamu menyetujui <a href="#">Ketentuan</a> dan <a href="#">Kebijakan Privasi</a>.
         </div>
+
+        <div class="auth-server" :class="serverOnline ? 'is-online' : 'is-offline'">
+          <span class="dot"></span>
+          <span>Server {{ serverOnline ? 'Online' : 'Offline' }}</span>
+        </div>
       </div>
     </main>
   </div>
@@ -229,5 +261,51 @@ async function handleSubmit() {
   font-style: normal;
   font-size: 11px;
   color: var(--t-muted, #64748b);
+}
+
+.auth-server {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--t-muted, #64748b);
+}
+
+.auth-server .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--t-light, #94a3b8);
+  flex: 0 0 auto;
+}
+
+.auth-server.is-online .dot {
+  background: var(--success, #22c55e);
+  box-shadow: 0 0 0 3px var(--success-soft, rgba(34, 197, 94, 0.18));
+  animation: server-pulse 1.8s ease-out infinite;
+}
+
+.auth-server.is-offline {
+  color: var(--danger, #ef4444);
+}
+
+.auth-server.is-offline .dot {
+  background: var(--danger, #ef4444);
+  box-shadow: 0 0 0 3px var(--danger-soft, rgba(239, 68, 68, 0.18));
+}
+
+@keyframes server-pulse {
+  0% {
+    box-shadow: 0 0 0 0 var(--success-soft, rgba(34, 197, 94, 0.35));
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(34, 197, 94, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+  }
 }
 </style>

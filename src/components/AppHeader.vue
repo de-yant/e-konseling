@@ -2,7 +2,9 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { logout, getSession } from '@/services/authService'
+import api from '@/services/api'
 import { useSearch } from '@/composables/useSearch'
+import { titleCase } from '@/utils/format'
 import { APP_NAME } from '@/config'
 import AppIcon from '@/components/AppIcon.vue'
 
@@ -17,7 +19,8 @@ const router = useRouter()
 const route = useRoute()
 
 const session = getSession()
-const initials = (session?.username || 'u').slice(0, 2).toUpperCase()
+const displayName = titleCase(session?.name || session?.username || '') || 'Pengguna'
+const initials = displayName.split(' ').filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase() || 'U'
 
 // ===== dropdown =====
 const openMenu = ref(null)
@@ -113,13 +116,33 @@ function handleKeydown(e) {
   }
 }
 
+// Status server (titik di samping search; hijau online, merah offline).
+const serverOnline = ref(false)
+let serverTimer = null
+
+async function checkServer() {
+  try {
+    await api.get('/api/health', { timeout: 5000 })
+    serverOnline.value = true
+  } catch {
+    serverOnline.value = false
+  }
+}
+
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
   document.addEventListener('keydown', handleKeydown)
+  checkServer()
+  serverTimer = setInterval(checkServer, 15000)
+  window.addEventListener('online', checkServer)
+  window.addEventListener('offline', checkServer)
 })
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
   document.removeEventListener('keydown', handleKeydown)
+  clearInterval(serverTimer)
+  window.removeEventListener('online', checkServer)
+  window.removeEventListener('offline', checkServer)
 })
 </script>
 
@@ -146,6 +169,16 @@ onUnmounted(() => {
     </div>
 
     <div class="topbar-actions">
+      <div
+        class="server-status"
+        :class="serverOnline ? 'is-online' : 'is-offline'"
+        role="status"
+        :aria-label="serverOnline ? 'Server Online' : 'Server Offline'"
+      >
+        <span class="server-dot"></span>
+        <span class="server-label">Server {{ serverOnline ? 'Online' : 'Offline' }}</span>
+      </div>
+
       <button class="cmd" type="button" @click="openSearch">
         <AppIcon name="search" />
         <span>Search...</span>
@@ -229,7 +262,7 @@ onUnmounted(() => {
         <div class="dd-menu dd-profile" role="menu">
           <div class="dd-profile-head">
             <div class="dd-profile-name">
-              {{ session?.username || 'Pengguna' }}
+              {{ displayName }}
               <span v-if="session?.demo" class="demo-badge">DEMO</span>
             </div>
             <div class="dd-profile-email">{{ session?.label || 'demo' }}</div>
@@ -564,5 +597,61 @@ button.dd-menu-item {
   font-size: 13px;
   text-align: left;
   cursor: pointer;
+}
+
+/* Status server: desktop tampil titik + tulisan, mobile/tablet titik saja. */
+.server-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--t-muted, #64748b);
+  white-space: nowrap;
+}
+
+.server-status.is-offline {
+  color: var(--danger, #ef4444);
+}
+
+.server-dot {
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--t-light, #94a3b8);
+  animation: server-dot-blink 1.4s ease-in-out infinite;
+}
+
+.server-status.is-online .server-dot {
+  background: var(--success, #22c55e);
+  box-shadow: 0 0 0 3px var(--success-soft, rgba(34, 197, 94, 0.18));
+}
+
+.server-status.is-offline .server-dot {
+  background: var(--danger, #ef4444);
+  box-shadow: 0 0 0 3px var(--danger-soft, rgba(239, 68, 68, 0.18));
+}
+
+@media (max-width: 1100px) {
+  .server-label {
+    display: none;
+  }
+
+  .server-status {
+    margin-right: 6px;
+    margin-left: 4px;
+  }
+}
+
+@keyframes server-dot-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
 }
 </style>

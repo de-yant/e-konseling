@@ -10,7 +10,7 @@ const menus = getMenus(session?.role, session?.home)
 <template>
   <nav class="mobile-nav" aria-label="Menu utama">
     <template v-for="m in menus" :key="m.label">
-      <RouterLink v-if="m.to" class="mobile-nav-item" :to="m.to" exact-active-class="active">
+      <RouterLink v-if="m.to" class="mobile-nav-item" :to="m.to" exact-active-class="is-active">
         <AppIcon :name="m.icon" />
         <span>{{ m.label }}</span>
       </RouterLink>
@@ -50,12 +50,13 @@ const menus = getMenus(session?.role, session?.home)
     display: grid;
     place-items: center;
     gap: 3px;
-    padding: 7px 2px;
+    padding: 7px 2px 5px;
     border-radius: 10px;
     color: var(--t-muted, #64748b);
     font-size: 10.5px;
     font-weight: 600;
     text-align: center;
+    position: relative;
   }
 
   .mobile-nav-item svg {
@@ -70,9 +71,20 @@ const menus = getMenus(session?.role, session?.home)
     white-space: nowrap;
   }
 
-  .mobile-nav-item.active {
+  .mobile-nav-item.is-active {
     color: var(--primary, #2563eb);
     background: var(--primary-soft, #eff6ff);
+  }
+
+  .mobile-nav-item.is-active::after {
+    content: "";
+    position: absolute;
+    bottom: 1px;
+    left: 8px;
+    right: 8px;
+    height: 2px;
+    border-radius: 999px;
+    background: var(--primary, #2563eb);
   }
 }
 </style>
