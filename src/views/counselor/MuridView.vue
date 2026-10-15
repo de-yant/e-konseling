@@ -138,7 +138,7 @@ watch([kelas, keyword], () => {
 
 <template>
   <div class="content">
-    <section class="hero">
+    <section class="hero hero--accent">
       <div class="hero-main">
         <div class="hero-icon">
           <AppIcon name="users" :size="24" />
