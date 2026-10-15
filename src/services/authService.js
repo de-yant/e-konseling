@@ -107,6 +107,18 @@ export async function login(identity, password) {
   return session
 }
 
+// Cari akun berdasarkan email atau nomor telepon (untuk lupa password).
+export async function findUser(contact, method = 'email') {
+  const res = await api.post('/api/auth/find-user', { contact, method })
+  return res.data?.data
+}
+
+// Kirim instruksi reset password ke email akun.
+export async function requestPasswordReset(email) {
+  const res = await api.post('/api/auth/request-password-reset', { email })
+  return res.data
+}
+
 export function logout() {
   localStorage.removeItem(SESSION_KEY)
   localStorage.removeItem('token')
@@ -122,6 +134,11 @@ export function getSession() {
   } catch {
     return null
   }
+}
+
+export function isDemoSession() {
+  const s = getSession()
+  return !!s?.demo
 }
 
 export function isLoggedIn() {

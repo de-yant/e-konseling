@@ -14,6 +14,7 @@ const password = ref('')
 const remember = ref(true)
 const loading = ref(false)
 const error = ref('')
+const showPassword = ref(false)
 
 const demoAccounts = Object.entries(DEMO_ACCOUNTS).map(([user, a]) => ({
   user,
@@ -104,13 +105,16 @@ async function handleSubmit() {
           <div class="field">
             <div class="field-row">
               <label class="field-label" for="password">Password</label>
-              <a href="#">Lupa?</a>
+              <RouterLink to="/forgot-password">Lupa?</RouterLink>
             </div>
             <div class="input-icon">
               <span class="ico">
                 <AppIcon name="lock" />
               </span>
-              <input id="password" v-model="password" class="input" type="password" autocomplete="current-password" required>
+              <input id="password" v-model="password" class="input password-input" :type="showPassword ? 'text' : 'password'" autocomplete="current-password" required>
+              <button type="button" class="password-toggle" :aria-label="showPassword ? 'Sembunyikan password' : 'Lihat password'" @click="showPassword = !showPassword">
+                <AppIcon :name="showPassword ? 'eye-off' : 'eye'" :size="14" />
+              </button>
             </div>
           </div>
 
@@ -157,6 +161,31 @@ async function handleSubmit() {
   font-size: 12.5px;
   font-weight: 600;
   color: var(--danger, #ef4444);
+}
+
+.password-input {
+  padding-right: 36px;
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--t-light, #94a3b8);
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.password-toggle:hover {
+  color: var(--t-base, #1e293b);
 }
 
 .demo-accounts {

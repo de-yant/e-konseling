@@ -4,6 +4,8 @@ import AppIcon from '@/components/AppIcon.vue'
 import AppPagination from '@/components/AppPagination.vue'
 import { getPublicSiswa } from '@/services/siswaService'
 import { useSearch } from '@/composables/useSearch'
+import { isDemoSession } from '@/services/authService'
+import { demoSiswa } from '@/services/demoData'
 
 const { keyword, setProvider, clearProvider } = useSearch()
 
@@ -23,6 +25,19 @@ async function load() {
   loading.value = true
   error.value = ''
   try {
+    if (isDemoSession()) {
+      const data = demoSiswa
+      rows.value = data.map((s) => ({
+        id: s.id,
+        nama: s.nama || '-',
+        nisn: s.nisn || '-',
+        nipd: s.nipd || '-',
+        kelas: s.nama_rombel || s.rombel || '-',
+        tingkat: tingkatOf(s.nama_rombel || s.rombel),
+        jenis_kelamin: s.jenis_kelamin || '',
+      }))
+      return
+    }
     const res = await getPublicSiswa()
     const data = Array.isArray(res?.data) ? res.data : []
     rows.value = data.map((s) => ({

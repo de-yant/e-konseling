@@ -552,4 +552,17 @@ onUnmounted(() => {
   font-size: 12.5px;
   color: var(--t-muted, #64748b);
 }
+
+.dd-menu-item {
+  width: 100%;
+}
+
+button.dd-menu-item {
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
 </style>
